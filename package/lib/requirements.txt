@@ -1,0 +1,9 @@
+splunktaucclib
+splunk-sdk
+solnlib
+httpx
+httpx-auth
+httpcore[asyncio]
+httpx[http2]
+exceptiongroup
+kafka-python>=2.0.2, < 3.0.0

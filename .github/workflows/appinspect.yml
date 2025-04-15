@@ -1,0 +1,41 @@
+name: Appinspect
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13' 
+    - name: install dependencies
+      run: |
+        pip install requests
+        pip install splunk-add-on-ucc-framework
+        wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.0.1.tar.gz
+        pip install splunk-packaging-toolkit-1.0.1.tar.gz
+        pip install splunk-appinspect
+    - name: build
+      run: sh $GITHUB_WORKSPACE/build.sh 1.0.0
+    - name: run appinspect
+      env:
+        SPLUNK_USERNAME: ${{ secrets.SPLUNK_USERNAME }}
+        SPLUNK_PASSWORD: ${{ secrets.SPLUNK_PASSWORD }}
+      run: python cicd/scripts/app_spec.py --username=$SPLUNK_USERNAME --password=$SPLUNK_PASSWORD --package_name=$GITHUB_WORKSPACE/ansible_addon_for_splunk-1.0.0.tar.gz --included_tags=cloud --allowed_failures=0
+    - name: Archive app inspect results
+      uses: actions/upload-artifact@v4
+      with:
+        name: appinspect_report
+        path: appinspect_report.html

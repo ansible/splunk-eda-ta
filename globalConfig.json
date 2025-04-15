@@ -1,0 +1,825 @@
+{
+    "meta": {
+        "name": "ansible_addon_for_splunk",
+        "restRoot": "ansible_addon_for_splunk",
+        "version": "1.0.0",
+        "displayName": "Event-Driven Ansible Add-on for Splunk",
+        "schemaVersion": "0.0.10",
+        "supportedThemes": [
+            "light",
+            "dark"
+        ],
+        "_uccVersion": "5.53.0"
+    },
+    "pages": {
+        "configuration": {
+            "title": "Configuration",
+            "description": "Set up your add-on",
+            "tabs": [
+                {
+                    "name": "environment",
+                    "title": "Integration",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Name",
+                                "field": "name"
+                            }
+                        ],
+                        "moreInfo": [
+                            {
+                                "label": "Integration Type",
+                                "field": "integration_type"
+                            },
+                            {
+                                "label": "Environment",
+                                "field": "environment"
+                            },
+                            {
+                                "label": "Webhook Endpoint",
+                                "field": "webhook_endpoint"
+                            },
+                            {
+                                "label": "SSL Hostname Verification",
+                                "field": "ssl_check_hostname",
+                                "mapping": {
+                                    "true": "Enabled",
+                                    "false": "Disabled"
+                                }
+                            },
+                            {
+                                "label": "Webhook Auth Type",
+                                "field": "auth_type"
+                            },
+                            {
+                                "label": "Connection Timeout (seconds)",
+                                "field": "connection_timeout"
+                            },
+                            {
+                                "label": "Connection Retries",
+                                "field": "retries"
+                            },
+                            {
+                                "label": "Bootstrap Servers",
+                                "field": "bootstrap_servers"
+                            },
+                            {
+                                "label": "Security Protocol",
+                                "field": "security_protocol"
+                            }
+                        ]
+                    },
+                    "entity": [
+                        {
+                            "field": "name",
+                            "label": "Name",
+                            "type": "text",
+                            "help": "A unique name for the integration.",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "field": "integration_type",
+                            "label": "Integration Type",
+                            "type": "radio",
+                            "defaultValue": "webhook",
+                            "required": true,
+                            "help": "Select Ansible integration type.",
+                            "options": {
+                                "items": [
+                                    {
+                                        "value": "webhook",
+                                        "label": "Webhook"
+                                    },
+                                    {
+                                        "value": "kafka",
+                                        "label": "Kafka"
+                                    }
+                                ]
+                            },
+                            "modifyFieldsOnValue": [
+                                {
+                                    "fieldValue": "kafka",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "environment",
+                                            "display": true,
+                                            "required": true
+                                        },
+                                        {
+                                            "fieldId": "bootstrap_servers",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "security_protocol",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "sasl_plain_username",
+                                            "display": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "sasl_plain_password",
+                                            "display": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "ssl_check_hostname",
+                                            "display": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "webhook_endpoint",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "auth_type",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "basic_username",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "basic_password",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "token",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "connection_timeout",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "retries",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "webhook",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "environment",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "bootstrap_servers",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "security_protocol",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "sasl_plain_username",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "sasl_plain_password",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "webhook_endpoint",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "basic_username",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "basic_password",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "auth_type",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "token",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "connection_timeout",
+                                            "display": true,
+                                            "required": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "retries",
+                                            "display": true,
+                                            "required": false,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "ssl_check_hostname",
+                                            "display": true,
+                                            "required": false,
+                                            "disabled": false
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "environment",
+                            "label": "Environment",
+                            "type": "text",
+                            "help": "A unique name for the environment.",
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "field": "bootstrap_servers",
+                            "label": "Bootstrap Servers",
+                            "type": "text",
+                            "help": "List of Bootstrap Servers comma-separated. e.g. localhost:9092,localhost:9093",
+                            "required": false
+                        },
+                        {
+                            "field": "security_protocol",
+                            "label": "Security Protocol",
+                            "type": "singleSelect",
+                            "help": "Select the security protocol to use.",
+                            "required": false,
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "PLAINTEXT",
+                                        "label": "PLAINTEXT (No Authentication)"
+                                    },
+                                    {
+                                        "value": "SASL_PLAINTEXT",
+                                        "label": "SASL_PLAINTEXT (No SSL)"
+                                    },
+                                    {
+                                        "value": "SASL_SSL",
+                                        "label": "SASL_SSL (Secure with SASL Authentication)"
+                                    }
+                                ]
+                            },
+                            "modifyFieldsOnValue": [
+                                {
+                                    "fieldValue": "SASL_PLAINTEXT",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "sasl_plain_username",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "sasl_plain_password",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "ssl_check_hostname",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "SASL_SSL",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "sasl_plain_username",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "sasl_plain_password",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "ssl_check_hostname",
+                                            "display": true,
+                                            "required": false,
+                                            "disabled": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "PLAINTEXT",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "sasl_plain_username",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "sasl_plain_password",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "ssl_check_hostname",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "sasl_plain_username",
+                            "label": "SASL PLAIN Username",
+                            "type": "text",
+                            "help": "Username for SASL PLAIN authentication.",
+                            "required": false
+                        },
+                        {
+                            "field": "sasl_plain_password",
+                            "label": "SASL PLAIN Password",
+                            "type": "text",
+                            "help": "Password for SASL PLAIN authentication.",
+                            "encrypted": true,
+                            "required": false
+                        },
+                        {
+                            "field": "webhook_endpoint",
+                            "label": "Webhook Endpoint",
+                            "type": "text",
+                            "help": "Specify the endpoint path to send events to, e.g., https://my-webhook-endpoint.com:8080/path/to/api",
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^(https:\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|localhost|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?_?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))?(?::([1-9]\\d{0,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5]))?(?:\\/[^\\s]*)?$",
+                                    "errorMsg": "Please provide a valid URL for the webhook endpoint. Only HTTPS is supported protocol"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "ssl_check_hostname",
+                            "type": "checkbox",
+                            "label": "SSL Hostname Verification",
+                            "help": "Check to enable hostname verification during SSL handshake.",
+                            "defaultValue": false
+                        },
+                        {
+                            "field": "auth_type",
+                            "label": "Webhook Auth Type",
+                            "type": "singleSelect",
+                            "defaultValue": "none",
+                            "help": "Select type of authentication for the webhook",
+                            "required": false,
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "none",
+                                        "label": "No Authentication"
+                                    },
+                                    {
+                                        "value": "basic",
+                                        "label": "Basic Auth"
+                                    },
+                                    {
+                                        "value": "apikey",
+                                        "label": "API Key in Header"
+                                    }
+                                ]
+                            },
+                            "modifyFieldsOnValue": [
+                                {
+                                    "fieldValue": "none",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "basic_username",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "basic_password",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "token",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "basic",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "basic_username",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "basic_password",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "token",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fieldValue": "apikey",
+                                    "fieldsToModify": [
+                                        {
+                                            "fieldId": "token",
+                                            "display": true,
+                                            "required": true,
+                                            "disabled": false
+                                        },
+                                        {
+                                            "fieldId": "basic_username",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        },
+                                        {
+                                            "fieldId": "basic_password",
+                                            "display": false,
+                                            "required": false,
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "basic_username",
+                            "label": "Basic Auth Username",
+                            "type": "text",
+                            "help": "Used when auth_type is 'basic'.",
+                            "required": false
+                        },
+                        {
+                            "field": "basic_password",
+                            "label": "Basic Auth Password",
+                            "type": "text",
+                            "encrypted": true,
+                            "help": "Used when auth_type is 'basic'.",
+                            "required": false
+                        },
+                        {
+                            "field": "token",
+                            "label": "Authentication Token",
+                            "type": "text",
+                            "help": "Optional authentication token expected by the webhook.",
+                            "encrypted": true,
+                            "required": false
+                        },
+                        {
+                            "field": "connection_timeout",
+                            "label": "Connection Timeout (seconds)",
+                            "type": "text",
+                            "help": "Number of seconds to wait for the TCP connection.",
+                            "required": false,
+                            "defaultValue": 10
+                        },
+                        {
+                            "field": "retries",
+                            "label": "Connection Retries",
+                            "type": "text",
+                            "help": "Number of times to retry the connection on failure.",
+                            "required": false,
+                            "defaultValue": 3
+                        }
+                    ]
+                },
+                {
+                    "type": "loggingTab",
+                    "levels": [
+                        "DEBUG",
+                        "INFO",
+                        "WARN",
+                        "ERROR",
+                        "CRITICAL"
+                    ],
+                    "defaultLevel": "INFO",
+                    "help": "The logging level you want to use"
+                }
+            ]
+        },
+        "inputs": {
+            "title": "Inputs",
+            "description": "Manage your data inputs",
+            "services": [],
+            "table": {
+                "actions": [],
+                "header": [],
+                "moreInfo": []
+            }
+        },
+        "dashboard": {
+            "panels": [
+                {
+                    "name": "addon_version"
+                },
+                {
+                    "name": "errors_in_the_addon"
+                }
+            ]
+        }
+    },
+    "alerts": [
+        {
+            "name": "ansible_core",
+            "label": "Ansible Action",
+            "description": "Custom action for Splunk Core saved search alerts via Event-Driven Ansible",
+            "iconFileName": "appIcon.png",
+            "entity": [
+                {
+                    "type": "singleSelect",
+                    "label": "Integration Type",
+                    "field": "alert_type",
+                    "options": {
+                        "items": [
+                            {
+                                "value": "webhook",
+                                "label": "Webhook"
+                            },
+                            {
+                                "value": "kafka",
+                                "label": "Kafka"
+                            }
+                        ]
+                    },
+                    "help": "Select whether this alert action should use Webhook or Kafka.",
+                    "required": true,
+                    "defaultValue": "webhook"
+                },
+                {
+                    "field": "environment",
+                    "label": "Environment",
+                    "type": "singleSelectSplunkSearch",
+                    "help": "Select an environment based on integration type defined in the add-on configuration.",
+                    "required": true,
+                    "search": "| rest /servicesNS/nobody/ansible_addon_for_splunk/configs/conf-ansible_addon_for_splunk_environment | eval label=environment.&quot; | type: &quot;.integration_type | table environment, label",
+                    "valueField": "environment",
+                    "labelField": "label",
+                    "options": {
+                        "items": []
+                    }
+                },
+                {
+                    "field": "send_all_results",
+                    "label": "Send All Results",
+                    "type": "singleSelect",
+                    "help": "Select how search results are sent: no (only first row), plaintext (all rows as JSON), or compressed (base64_gzip in JSON).",
+                    "options": {
+                        "items": [
+                            {
+                                "value": "no",
+                                "label": "No"
+                            },
+                            {
+                                "value": "plaintext",
+                                "label": "Plaintext"
+                            },
+                            {
+                                "value": "compressed",
+                                "label": "Compressed"
+                            }
+                        ]
+                    },
+                    "defaultValue": "no",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "label": "Results per batch",
+                    "field": "results_per_batch",
+                    "defaultValue": "100",
+                    "required": false,
+                    "help": "Specify how many results to include in each batch. Valid only for 'Plaintext' option selected above."
+                }
+            ]
+        },
+        {
+            "name": "ansible_es",
+            "label": "Ansible Adaptive Response Action (ES)",
+            "description": "Adaptive Response action to send data to Event-Driven Ansible or trigger plays.",
+            "iconFileName": "appIcon.png",
+            "adaptiveResponse": {
+                "task": [
+                    "send"
+                ],
+                "subject": [
+                    "any"
+                ],
+                "category": [
+                    "Information Gathering"
+                ],
+                "technology": [
+                    {
+                        "version": [
+                            "1.0.0"
+                        ],
+                        "product": "Event-Driven Ansible",
+                        "vendor": "RedHat"
+                    }
+                ],
+                "supportsAdhoc": true,
+                "drilldownUri": "",
+                "sourcetype": "ansible:alert",
+                "supportsCloud": true
+            },
+            "entity": [
+                {
+                    "type": "singleSelect",
+                    "label": "Integration Type",
+                    "field": "alert_type",
+                    "options": {
+                        "items": [
+                            {
+                                "value": "webhook",
+                                "label": "Webhook"
+                            },
+                            {
+                                "value": "kafka",
+                                "label": "Kafka"
+                            }
+                        ]
+                    },
+                    "help": "Select whether this alert action should use Webhook or Kafka.",
+                    "required": true,
+                    "defaultValue": "webhook"
+                },
+                {
+                    "field": "environment",
+                    "label": "Environment",
+                    "type": "singleSelectSplunkSearch",
+                    "help": "Select an environment based on integration type defined in the add-on configuration.",
+                    "required": true,
+                    "search": "| rest /servicesNS/nobody/ansible_addon_for_splunk/configs/conf-ansible_addon_for_splunk_environment | eval label=environment.&quot; | type: &quot;.integration_type | table environment, label",
+                    "valueField": "environment",
+                    "labelField": "label",
+                    "options": {
+                        "items": []
+                    }
+                },
+                {
+                    "field": "send_all_results",
+                    "label": "Send All Results",
+                    "type": "singleSelect",
+                    "help": "Select how search results are sent: no (only first row), plaintext (all rows as JSON), or compressed (base64_gzip in JSON).",
+                    "options": {
+                        "items": [
+                            {
+                                "value": "no",
+                                "label": "No"
+                            },
+                            {
+                                "value": "plaintext",
+                                "label": "Plaintext"
+                            },
+                            {
+                                "value": "compressed",
+                                "label": "Compressed"
+                            }
+                        ]
+                    },
+                    "defaultValue": "no",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "label": "Results per batch",
+                    "field": "results_per_batch",
+                    "defaultValue": "100",
+                    "required": false,
+                    "help": "Specify how many results to include in each batch. Valid only for 'Plaintext' option selected above."
+                }
+            ]
+        },
+        {
+            "name": "ansible_itsi",
+            "label": "Ansible Episode Action (ITSI)",
+            "description": "Custom action for ITSI notable event alerts via Event-Driven Ansible",
+            "iconFileName": "appIcon.png",
+            "entity": [
+                {
+                    "type": "singleSelect",
+                    "label": "Integration Type",
+                    "field": "alert_type",
+                    "options": {
+                        "items": [
+                            {
+                                "value": "webhook",
+                                "label": "Webhook"
+                            },
+                            {
+                                "value": "kafka",
+                                "label": "Kafka"
+                            }
+                        ]
+                    },
+                    "help": "Select whether this alert action should use Webhook or Kafka.",
+                    "required": true,
+                    "defaultValue": "webhook"
+                },
+                {
+                    "field": "environment",
+                    "label": "Environment",
+                    "type": "singleSelectSplunkSearch",
+                    "help": "Select an environment based on integration type defined in the add-on configuration.",
+                    "required": true,
+                    "search": "| rest /servicesNS/nobody/ansible_addon_for_splunk/configs/conf-ansible_addon_for_splunk_environment | eval label=environment.&quot; | type: &quot;.integration_type | table environment, label",
+                    "valueField": "environment",
+                    "labelField": "label",
+                    "options": {
+                        "items": []
+                    }
+                }
+            ]
+        }
+    ]
+}

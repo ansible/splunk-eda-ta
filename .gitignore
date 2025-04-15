@@ -1,0 +1,5 @@
+.venv
+output
+*.tar.gz
+appinspect_report.html
+__pycache__
