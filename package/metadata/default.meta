@@ -1,13 +1,11 @@
 # Application-level permissions
 
 []
-owner = admin
-access = read : [ * ], write : [ admin, sc_admin ]
+access = read : [ * ], write : [ admin, power, sc_admin ]
 export = system
 
 [views/configuration]
-owner = admin
-access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+access = read : [ admin, power, sc_admin ], write : [ admin, power, sc_admin ]
 
 [alert_actions]
 export = system
