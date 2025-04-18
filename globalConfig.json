@@ -4,12 +4,7 @@
         "restRoot": "ansible_addon_for_splunk",
         "version": "1.0.0",
         "displayName": "Event-Driven Ansible Add-on for Splunk",
-        "schemaVersion": "0.0.10",
-        "supportedThemes": [
-            "light",
-            "dark"
-        ],
-        "_uccVersion": "5.53.0"
+        "schemaVersion": "0.0.9"
     },
     "pages": {
         "configuration": {
@@ -583,7 +578,6 @@
                         "ERROR",
                         "CRITICAL"
                     ],
-                    "defaultLevel": "INFO",
                     "help": "The logging level you want to use"
                 }
             ]
@@ -597,16 +591,6 @@
                 "header": [],
                 "moreInfo": []
             }
-        },
-        "dashboard": {
-            "panels": [
-                {
-                    "name": "addon_version"
-                },
-                {
-                    "name": "errors_in_the_addon"
-                }
-            ]
         }
     },
     "alerts": [
