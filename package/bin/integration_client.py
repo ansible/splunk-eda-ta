@@ -189,7 +189,7 @@ async def send_data_webhook_async(
     # Timeouts / Retry
     connect_timeout = float(env_config.get("connection_timeout", "10"))
     max_retries = int(env_config.get("retries", "3"))
-    transport = httpx.AsyncHTTPTransport(retries=max_retries)
+    transport = httpx.AsyncHTTPTransport(retries=max_retries, verify=verify_ssl)
     timeouts = httpx.Timeout(connect=connect_timeout, read=30.0, write=30.0, pool=30.0)
     # Authentication
     auth_type = env_config.get("auth_type", "none").lower()
