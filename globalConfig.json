@@ -2,7 +2,7 @@
     "meta": {
         "name": "ansible_addon_for_splunk",
         "restRoot": "ansible_addon_for_splunk",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "displayName": "Event-Driven Ansible Add-on for Splunk",
         "schemaVersion": "0.0.9"
     },
@@ -685,7 +685,7 @@
                 "technology": [
                     {
                         "version": [
-                            "1.0.0"
+                            "1.0.1"
                         ],
                         "product": "Event-Driven Ansible",
                         "vendor": "RedHat"
