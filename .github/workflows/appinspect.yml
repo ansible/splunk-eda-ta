@@ -3,23 +3,27 @@ on:
   push:
     branches:
       - main
-      - master
+      - stable-*
   pull_request:
     branches:
       - main
-      - master
+      - stable-*
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      version: 1.0.1
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.13' 
+        python-version: '3.13'
+
     - name: install dependencies
       run: |
         pip install requests
@@ -27,15 +31,58 @@ jobs:
         wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.0.1.tar.gz
         pip install splunk-packaging-toolkit-1.0.1.tar.gz
         pip install splunk-appinspect
+
+    - name: Validate globalConfig.json version
+      run: |
+        echo "Validating globalConfig.json version"
+        echo "Environment version: ${{ env.version }}"
+        CONFIG_VERSION=$(python -c "import json; config = json.load(open('globalConfig.json')); print(config['meta']['version'])")
+        echo "globalConfig.json version: $CONFIG_VERSION"
+        if [ "$CONFIG_VERSION" != "${{ env.version }}" ]; then
+          echo "ERROR: Version mismatch!"
+          echo "globalConfig.json version ($CONFIG_VERSION) does not match env.version (${{ env.version }})"
+          exit 1
+        else
+          echo "SUCCESS: globalConfig.json version validation passed - both versions match: $CONFIG_VERSION"
+        fi
+
+    - name: Validate app.conf version
+      run: |
+        echo "Validating app.conf version"
+        echo "Environment version: ${{ env.version }}"
+        LAUNCHER_VERSION=$(grep -A 5 '^\[launcher\]' package/default/app.conf | grep '^version' | cut -d' ' -f3)
+        echo "app.conf [launcher] version: $LAUNCHER_VERSION"
+        ID_VERSION=$(grep -A 5 '^\[id\]' package/default/app.conf | grep '^version' | cut -d' ' -f3 | tr -d '\r')
+        echo "app.conf [id] version: $ID_VERSION"
+        if [ "$LAUNCHER_VERSION" != "${{ env.version }}" ]; then
+          echo "ERROR: Version mismatch!"
+          echo "app.conf [launcher] version ($LAUNCHER_VERSION) does not match env.version (${{ env.version }})"
+          exit 1
+        fi
+        if [ "$ID_VERSION" != "${{ env.version }}" ]; then
+          echo "ERROR: Version mismatch!"
+          echo "app.conf [id] version ($ID_VERSION) does not match env.version (${{ env.version }})"
+          exit 1
+        fi        
+        echo "SUCCESS: app.conf version validation passed - all versions match: ${{ env.version }}"
+
     - name: build
-      run: sh $GITHUB_WORKSPACE/build.sh 1.0.0
+      run: sh $GITHUB_WORKSPACE/build.sh ${{ env.version }}
+
     - name: run appinspect
       env:
         SPLUNK_USERNAME: ${{ secrets.SPLUNK_USERNAME }}
         SPLUNK_PASSWORD: ${{ secrets.SPLUNK_PASSWORD }}
-      run: python cicd/scripts/app_spec.py --username=$SPLUNK_USERNAME --password=$SPLUNK_PASSWORD --package_name=$GITHUB_WORKSPACE/ansible_addon_for_splunk-1.0.0.tar.gz --included_tags=cloud --allowed_failures=0
+      run: python cicd/scripts/app_spec.py --username=$SPLUNK_USERNAME --password=$SPLUNK_PASSWORD --package_name=$GITHUB_WORKSPACE/ansible_addon_for_splunk-${{ env.version }}.tar.gz --included_tags=cloud --allowed_failures=0
+
     - name: Archive app inspect results
       uses: actions/upload-artifact@v4
       with:
         name: appinspect_report
         path: appinspect_report.html
+
+    - name: Upload Red Hat Event Driven Ansible Add-on For Splunk Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ansible_addon_for_splunk
+        path: ansible_addon_for_splunk-${{ env.version }}.tar.gz
