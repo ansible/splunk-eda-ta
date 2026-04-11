@@ -6,4 +6,4 @@ httpx-auth
 httpcore[asyncio]
 httpx[http2]
 exceptiongroup
-kafka-python>=2.0.2, < 3.0.0
+kafka-python>=2.2.0, < 3.0.0
