@@ -4,6 +4,11 @@
 The add-on provides custom alert actions to send Splunk events to Event Driven Ansible.
 Currently webhook, and Kafka methods are supported. Works with [generic EDA event source plugins](https://github.com/ansible/event-driven-ansible/blob/main/extensions/eda/plugins/event_source/README.md) for webhook, kafka.
 
+## Compatibility
+* Splunk Enterprise 9.3, 9.4, 10.0, 10.1, 10.2
+* Splunk Cloud Platform
+* Ansible Automation Platform 2.4+
+
 ## Documentation
 
 ## Build
