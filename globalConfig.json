@@ -4,7 +4,8 @@
         "restRoot": "ansible_addon_for_splunk",
         "version": "1.0.2",
         "displayName": "Event-Driven Ansible Add-on for Splunk",
-        "schemaVersion": "0.0.10"
+        "schemaVersion": "0.0.10",
+        "supportedPythonVersion": ["python3", "python3.13"]
     },
     "pages": {
         "configuration": {
