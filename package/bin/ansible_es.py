@@ -214,7 +214,7 @@ class AnsibleESAction(ModularAction):
         results_rest_link = None
         if sid:
             from solnlib import splunkenv
-            splunkd_scheme, splunkd_host, splunkd_port = splunkenv.get_splunkd_access_info()
+            splunkd_scheme, splunkd_host, splunkd_port = splunkenv.get_splunkd_access_info(self.session_key)
             external_host = self.settings.get("server_host", splunkd_host)
             results_rest_link = f"{splunkd_scheme}://{external_host}:{splunkd_port}/services/search/v2/jobs/{sid}/results"
 
