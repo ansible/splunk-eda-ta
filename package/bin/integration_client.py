@@ -408,7 +408,7 @@ async def _send_single_chunk(
                     shared_ciphers = ssl_obj.shared_ciphers()
                     logger.debug(f"SSL shared ciphers={shared_ciphers}")
                     alpn = ssl_obj.selected_alpn_protocol()
-                    npn = ssl_obj.selected_npn_protocol()
+                    npn = getattr(ssl_obj, 'selected_npn_protocol', lambda: None)()
                     logger.debug(f"ALPN={alpn}, NPN={npn}")
                     ssl_compression = ssl_obj.compression()
                     logger.debug(f"SSL compression={ssl_compression}")

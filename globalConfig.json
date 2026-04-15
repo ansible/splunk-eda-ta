@@ -2,9 +2,10 @@
     "meta": {
         "name": "ansible_addon_for_splunk",
         "restRoot": "ansible_addon_for_splunk",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "displayName": "Event-Driven Ansible Add-on for Splunk",
-        "schemaVersion": "0.0.9"
+        "schemaVersion": "0.0.10",
+        "supportedPythonVersion": ["python3", "python3.13"]
     },
     "pages": {
         "configuration": {
@@ -299,7 +300,20 @@
                             "label": "Bootstrap Servers",
                             "type": "text",
                             "help": "List of Bootstrap Servers comma-separated. e.g. localhost:9092,localhost:9093",
-                            "required": false
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of Bootstrap Servers should be between 1 and 8192",
+                                    "minLength": 1,
+                                    "maxLength": 8192
+                                },
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Bootstrap Servers must be a comma-separated list of host:port entries, e.g. localhost:9092,localhost:9093",
+                                    "pattern": "^[\\w.\\-]+(:\\d+)?(,[\\w.\\-]+(:\\d+)?)*$"
+                                }
+                            ]
                         },
                         {
                             "field": "security_protocol",
@@ -307,6 +321,14 @@
                             "type": "singleSelect",
                             "help": "Select the security protocol to use.",
                             "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of Security Protocol should be between 1 and 50",
+                                    "minLength": 1,
+                                    "maxLength": 50
+                                }
+                            ],
                             "options": {
                                 "disableSearch": true,
                                 "autoCompleteFields": [
@@ -401,7 +423,15 @@
                             "label": "SASL PLAIN Username",
                             "type": "text",
                             "help": "Username for SASL PLAIN authentication.",
-                            "required": false
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of SASL PLAIN Username should be between 1 and 200",
+                                    "minLength": 1,
+                                    "maxLength": 200
+                                }
+                            ]
                         },
                         {
                             "field": "sasl_plain_password",
@@ -409,7 +439,15 @@
                             "type": "text",
                             "help": "Password for SASL PLAIN authentication.",
                             "encrypted": true,
-                            "required": false
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of SASL PLAIN Password should be between 1 and 8192",
+                                    "minLength": 1,
+                                    "maxLength": 8192
+                                }
+                            ]
                         },
                         {
                             "field": "webhook_endpoint",
@@ -439,6 +477,14 @@
                             "defaultValue": "none",
                             "help": "Select type of authentication for the webhook",
                             "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of Webhook Auth Type should be between 1 and 50",
+                                    "minLength": 1,
+                                    "maxLength": 50
+                                }
+                            ],
                             "options": {
                                 "disableSearch": true,
                                 "autoCompleteFields": [
@@ -533,7 +579,15 @@
                             "label": "Basic Auth Username",
                             "type": "text",
                             "help": "Used when auth_type is 'basic'.",
-                            "required": false
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of Basic Auth Username should be between 1 and 200",
+                                    "minLength": 1,
+                                    "maxLength": 200
+                                }
+                            ]
                         },
                         {
                             "field": "basic_password",
@@ -541,7 +595,15 @@
                             "type": "text",
                             "encrypted": true,
                             "help": "Used when auth_type is 'basic'.",
-                            "required": false
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of Basic Auth Password should be between 1 and 8192",
+                                    "minLength": 1,
+                                    "maxLength": 8192
+                                }
+                            ]
                         },
                         {
                             "field": "token",
@@ -549,7 +611,15 @@
                             "type": "text",
                             "help": "Optional authentication token expected by the webhook.",
                             "encrypted": true,
-                            "required": false
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of Authentication Token should be between 1 and 8192",
+                                    "minLength": 1,
+                                    "maxLength": 8192
+                                }
+                            ]
                         },
                         {
                             "field": "connection_timeout",
@@ -557,7 +627,19 @@
                             "type": "text",
                             "help": "Number of seconds to wait for the TCP connection.",
                             "required": false,
-                            "defaultValue": 10
+                            "defaultValue": 10,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Connection Timeout must be a positive integer",
+                                    "pattern": "^[1-9]\\d*$"
+                                },
+                                {
+                                    "type": "number",
+                                    "errorMsg": "Connection Timeout must be between 1 and 600",
+                                    "range": [1, 600]
+                                }
+                            ]
                         },
                         {
                             "field": "retries",
@@ -565,7 +647,19 @@
                             "type": "text",
                             "help": "Number of times to retry the connection on failure.",
                             "required": false,
-                            "defaultValue": 3
+                            "defaultValue": 3,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Connection Retries must be a non-negative integer",
+                                    "pattern": "^\\d+$"
+                                },
+                                {
+                                    "type": "number",
+                                    "errorMsg": "Connection Retries must be between 0 and 10",
+                                    "range": [0, 10]
+                                }
+                            ]
                         }
                     ]
                 },
@@ -685,7 +779,7 @@
                 "technology": [
                     {
                         "version": [
-                            "1.0.1"
+                            "1.0.2"
                         ],
                         "product": "Event-Driven Ansible",
                         "vendor": "RedHat"

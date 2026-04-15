@@ -97,6 +97,8 @@ class AlertActionWorkeransible_core(ModularAlertBase):
         """
         Main entry point for Splunk to call this custom alert action.
         """
+        self.log_info(f"Python runtime: {sys.version}, executable: {sys.executable}")
+
         if not self.validate_params():
             return 4
 
@@ -144,7 +146,7 @@ class AlertActionWorkeransible_core(ModularAlertBase):
             results_web_link = self.settings.get("results_link")
             results_rest_link = None
             if sid:
-                splunkd_scheme, splunkd_host, splunkd_port = splunkenv.get_splunkd_access_info()
+                splunkd_scheme, splunkd_host, splunkd_port = splunkenv.get_splunkd_access_info(self.session_key)
                 external_host = self.settings.get("server_host", splunkd_host)
                 results_rest_link = f"{splunkd_scheme}://{external_host}:{splunkd_port}/services/search/v2/jobs/{sid}/results"
 
