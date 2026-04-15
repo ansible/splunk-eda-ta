@@ -29,6 +29,9 @@ The add-on will be built in an `output` directory in the root of the repository.
 
     ucc-gen package --path=./output/ansible_addon_for_splunk
 
+## Test
+    python cicd/scripts/app_spec.py --username=$SPLUNK_USERNAME --password=$SPLUNK_PASSWORD --package_name=$GITHUB_WORKSPACE/ansible_addon_for_splunk-${{ env.version }}.tar.gz --included_tags=cloud --allowed_failures=0
+    
 ## Usage
 
 ### Configuration
