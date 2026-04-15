@@ -4,7 +4,7 @@ on:
     branches:
       - main
       - stable-*
-  pull_request:
+  pull_request_target:
     branches:
       - main
       - stable-*
@@ -13,11 +13,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: AppInspect
     env:
       version: 1.0.2
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Setup Python
       uses: actions/setup-python@v5
