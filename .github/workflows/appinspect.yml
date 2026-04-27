@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: AppInspect
     env:
-      version: 1.0.2
+      version: 1.0.3
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
