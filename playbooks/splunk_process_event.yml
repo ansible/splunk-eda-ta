@@ -1,0 +1,28 @@
+---
+- name: Process Splunk webhook event
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Print event metadata
+      debug:
+        msg: "Variable from the rulebook: {{ rulebook_action_var }}"
+
+    - name: Print event metadata
+      debug:
+        msg:
+          - "SID: {{ ansible_eda.event.payload.sid }}"
+          - "Search Name: {{ ansible_eda.event.payload.search_name }}"
+          - "Owner: {{ ansible_eda.event.payload.owner }}"
+          - "App: {{ ansible_eda.event.payload.app }}"
+          - "Results Web Link: {{ ansible_eda.event.payload.results_web_link }}"
+          - "Results REST Link: {{ ansible_eda.event.payload.results_rest_link }}"
+
+    - name: Handle plaintext results
+      debug:
+        msg: "Plaintext results: {{ ansible_eda.event.payload.results }}"
+      when: ansible_eda.event.payload.results is defined and ansible_eda.event.payload.results | type_debug == 'list'
+
+    - name: Handle compressed results
+      debug:
+        msg: "Compressed results (base64_gzip): {{ ansible_eda.event.payload.results.base64_gzip }}"
+      when: ansible_eda.event.payload.results is defined and ansible_eda.event.payload.results | type_debug == 'dict' and 'base64_gzip' in ansible_eda.event.payload.results
