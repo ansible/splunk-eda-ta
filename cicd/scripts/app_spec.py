@@ -111,9 +111,14 @@ class AppSecApi(UrlUtil):
             response_object, status_code = self.get_report_status()
             print(self.get_report_status())
             if response_object.get('status') == 'SUCCESS':
-                response_failure_count = response_object.get("info").get("failure")
+                info = response_object.get("info")
+                response_failure_count = info.get("failure")
+                response_future_failure_count = info.get("future_failure", 0)
                 if int(str(response_failure_count)) > int(str(self.allowed_failures)):
                     self.all_errors = self.all_errors + "\n* scan_threshold_count::FAILURE More than the usual number of appinspect errors seen. Failures threshold is at " + str(self.allowed_failures) + ", current failures: " + str(response_failure_count)
+                    return self.all_errors, requests.codes.internal_server_error
+                if int(str(response_future_failure_count)) > 0:
+                    self.all_errors = self.all_errors + "\n* scan_threshold_count::FUTURE_FAILURE AppInspect detected " + str(response_future_failure_count) + " future_failure check(s) that will become hard failures and block Splunk Cloud compatibility. Check appinspect_report.html for details."
                     return self.all_errors, requests.codes.internal_server_error
                 return response_object, status_code
             time.sleep(backoff_factor * pow(2, i))

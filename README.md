@@ -36,7 +36,7 @@ The add-on packages the following Python libraries (see `package/lib/requirement
 * splunktaucclib
 * splunk-sdk
 * solnlib
-* httpx (with http2), httpx-auth, httpcore[asyncio]
+* httpx, httpx-auth, httpcore[asyncio], h2 (pinned <4.4 for Python 3.9 compatibility)
 * anyio, sniffio, exceptiongroup
 * kafka-python (>=2.2.0, <3.0.0)
 
@@ -165,6 +165,102 @@ Choose one of the following alert actions. For each, select the **Environment** 
 
 For ITSI Episode Action details, see the [Splunk ITSI EDA Rulebook Activation guide](https://github.com/ansible-collections/splunk.itsi/blob/main/extensions/eda/README.md).
 
+---
+
+### Kafka Integration (Alternative to Webhook)
+
+This add-on also supports forwarding Splunk events to an Ansible Automation Platform rulebook via **Kafka**. In this flow, Splunk publishes events to a Kafka topic using the bundled `| kafkapublish` custom search command, and Event-Driven Ansible consumes from that topic using the `ansible.eda.kafka` source.
+
+```
+Splunk search → | kafkapublish → Kafka broker → EDA kafka source → rulebook → playbook
+```
+
+#### AAP - Kafka Rulebook Setup
+
+##### 1. Create a Job Template for Kafka events
+
+Navigate to:
+`Automation Execution` → `Templates` → `Create template`
+
+&emsp; a. `Name: splunk_kafka_event` — must align with the rulebook `run_job_template` name:
+```yaml
+  action:
+    run_job_template:
+      name: splunk_kafka_event
+```
+&emsp; b. With playbook `playbooks/splunk_kafka_event.yml`
+
+> **Note:** No Event Stream credential is needed for Kafka — EDA connects directly to the Kafka broker.
+
+##### 2. Create a Rulebook Activation
+
+Navigate to:
+`Automation Decisions` → `Rulebook Activations` → `Create rulebook activation`
+
+&emsp; a. Give the rulebook activation a name.\
+&emsp; b. **Project:** Choose the project created in [Step 1 of AAP Setup](#1-create-projects).\
+&emsp; c. **Rulebook:** Choose `splunk_kafka_rulebook.yml`.\
+&emsp; d. Update the rulebook's `host`, `port`, and `topic` to match your Kafka broker:
+```yaml
+sources:
+  - ansible.eda.kafka:
+      host: broker        # your Kafka broker hostname or IP
+      port: 9092
+      topic: eda-topic    # must match the topic used in | kafkapublish
+      group_id:
+```
+
+> **Verify:** After activation, confirm the Rulebook Activation state is **Running**. 
+The Kafka broker must be reachable on the configured port (default: 9092) before activating the rulebook; 
+otherwise the `ansible.eda.kafka` source will be unable to connect and Rulebook Activation will fail.
+
+#### Splunk - Kafka Environment and Command
+
+##### 1. Configure the Kafka Environment
+
+Navigate to:\
+`Apps` → `Event Driven Ansible Add-on For Splunk` → `Configuration` → Click **Add**
+
+&emsp; a. Give the environment a name.\
+&emsp; b. **Integration Type:** `Kafka`\
+&emsp; c. **Bootstrap Servers:** `broker:9092` (comma-separated if multiple)\
+&emsp; d. **Security Protocol:** `PLAINTEXT`, `SASL_PLAINTEXT`, or `SASL_SSL`\
+&emsp; e. Fill in SASL credentials if required.
+
+##### 2. Create an Alert
+
+Use the `| kafkapublish` streaming command in any Splunk search to forward events to Kafka:
+
+```spl
+index=main sourcetype=my_source
+| kafkapublish topic_name=eda-topic env_name=<environment-name>
+```
+
+Additional command options:
+
+| Option | Required | Description |
+|---|---|---|
+| `topic_name` | Yes | Kafka topic to publish to |
+| `env_name` | No | Environment stanza name (from Configuration). Omit to pass connection args directly. |
+| `bootstrap_servers` | No | Overrides environment config |
+| `security_protocol` | No | `PLAINTEXT`, `SASL_PLAINTEXT`, or `SASL_SSL` |
+| `sasl_plain_username` | No | Overrides environment config |
+| `sasl_plain_password` | No | Overrides environment config |
+| `error_index_name` | No | Splunk index to write failed events to |
+| `linger_ms` | No | Batch linger time in ms (default: 0) |
+| `batch_size` | No | Producer batch size in bytes (default: 16384) |
+| `timeout` | No | Flush timeout in seconds |
+
+On the Alert Trigger Actions, go to **"When triggered"** and add an **Ansible Action** (or Ansible ES / Ansible ITSI) alert action:
+
+- **Integration Type:** `Kafka`
+- **Environment:** Choose the environment created in [Step 1](#1-configure-the-kafka-environment).
+
+> **Note:** Splunk requires at least one "When triggered" action on every alerting saved search. 
+The actual Kafka message is sent by `| kafkapublish` running inside the search pipeline.
+
+---
+
 ### Build
 This add-on is built with Splunk's [UCC Generator](https://splunk.github.io/addonfactory-ucc-generator/). Install `ucc-gen` [per the instructions](https://splunk.github.io/addonfactory-ucc-generator/#installation). Building requires a local Python environment (3.9+ recommended); consider using a virtual environment: [Getting Started with UCC](https://splunk.github.io/addonfactory-ucc-generator/quickstart/).
 
@@ -173,6 +269,10 @@ Execute the following from the command line in the root of this repository to bu
     ucc-gen build --ta-version=<version>
 
 The add-on will be built in an `output` directory in the root of the repository.
+
+Before packaging, remove the generated Mako templates directory to maintain Splunk Cloud Platform compatibility (`check_for_custom_mako_templates`):
+
+    rm -rf output/ansible_addon_for_splunk/appserver/templates
 
 ### Package
 
@@ -191,6 +291,10 @@ Use the Ansible Adaptive Response Action from Splunk Enterprise Security when a 
 ### Splunk IT Service Intelligence (ITSI) — Episode Action
 
 Invoke the Ansible Episode Action from the ITSI Episode Review page, or configure it as part of an ITSI notable events aggregation policy. When an episode is created or updated, episode details are sent to Ansible Automation Platform so Event-Driven Ansible can drive ITOps remediation—reducing MTTR for service-impacting incidents. For ITSI-specific rulebook guidance, see the [Splunk ITSI EDA Rulebook Activation guide](https://github.com/ansible-collections/splunk.itsi/blob/main/extensions/eda/README.md).
+
+### Kafka Streaming Command — `| kafkapublish`
+
+Forward events to a Kafka topic directly from any Splunk search using the bundled `| kafkapublish` custom streaming command. This is a search-time operator: it publishes each event as it flows through the search pipeline while also passing it downstream. Use this for scheduled searches that continuously publish events, real-time searches, or any search where you want results mirrored to a Kafka topic alongside normal Splunk processing. Event-Driven Ansible can consume these events via the `ansible.eda.kafka` source in a rulebook.
 
 ### Configuration
 Configuration of a service account, depends on the type of connection, and desired authentication method.
