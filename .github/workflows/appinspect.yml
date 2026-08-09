@@ -15,12 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: AppInspect
     env:
-      version: 1.0.3
+      version: 1.1.0
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        allow-unsafe-pr-checkout: true
 
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -30,7 +31,7 @@ jobs:
     - name: install dependencies
       run: |
         pip install requests
-        pip install splunk-add-on-ucc-framework
+        pip install splunk-add-on-ucc-framework>=6.3.0
         wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.0.1.tar.gz
         pip install splunk-packaging-toolkit-1.0.1.tar.gz
         pip install splunk-appinspect
@@ -47,6 +48,20 @@ jobs:
           exit 1
         else
           echo "SUCCESS: globalConfig.json version validation passed - both versions match: $CONFIG_VERSION"
+        fi
+
+    - name: Validate app.manifest version
+      run: |
+        echo "Validating app.manifest version"
+        echo "Environment version: ${{ env.version }}"
+        MANIFEST_VERSION=$(python -c "import json; manifest = json.load(open('package/app.manifest')); print(manifest['info']['id']['version'])")
+        echo "app.manifest version: $MANIFEST_VERSION"
+        if [ "$MANIFEST_VERSION" != "${{ env.version }}" ]; then
+          echo "ERROR: Version mismatch!"
+          echo "app.manifest version ($MANIFEST_VERSION) does not match env.version (${{ env.version }})"
+          exit 1
+        else
+          echo "SUCCESS: app.manifest version validation passed - both versions match: $MANIFEST_VERSION"
         fi
 
     - name: Validate app.conf version
