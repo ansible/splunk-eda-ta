@@ -4,8 +4,12 @@ solnlib
 httpx
 httpx-auth
 httpcore[asyncio]
-httpx[http2]
 anyio>=4.0,<4.7
 sniffio
 exceptiongroup
 kafka-python>=2.2.0, < 3.0.0
+# h2 4.4+ uses the Python 3.10 X|Y union-type syntax which crashes on Python 3.9.
+# Pin to <4.4 so Splunk Enterprise 9.x is supported. This version is explicitly
+# included in the package so that on overlay upgrades it OVERWRITES any stale
+# h2 4.4.x left behind from a prior install (Splunk does not delete old files).
+h2>=3,<4.4

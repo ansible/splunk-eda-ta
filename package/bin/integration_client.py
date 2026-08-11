@@ -33,7 +33,39 @@ existing solution.
 
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+import glob
+import shutil
+
+_LIB_DIR = os.path.join(os.path.dirname(__file__), "..", "lib")
+sys.path.insert(0, _LIB_DIR)
+
+
+def _remove_stale_dist_info(lib_dir: str) -> None:
+    """
+    Splunk overlay-installs apps without removing old files, so multiple
+    *.dist-info directories accumulate for the same package across upgrades.
+    The code directory (e.g. h2/) is overwritten on each install, but old
+    dist-info directories with different version numbers are left as orphans.
+
+    This function removes all dist-info directories for packages where we ship
+    a specific pinned version, keeping only the one that matches the installed
+    code.  It runs once at import time and is a no-op on a clean install.
+    """
+    packages_to_clean = ["h2", "hpack", "hyperframe", "httpcore", "httpx",
+                         "httpx_auth", "anyio", "sniffio", "idna"]
+    for pkg in packages_to_clean:
+        pattern = os.path.join(lib_dir, f"{pkg}-*.dist-info")
+        all_dist = sorted(glob.glob(pattern))
+        if len(all_dist) > 1:
+            # Keep the last (highest version) dist-info, remove the rest.
+            for stale in all_dist[:-1]:
+                try:
+                    shutil.rmtree(stale)
+                except OSError:
+                    pass
+
+
+_remove_stale_dist_info(_LIB_DIR)
 
 import asyncio
 import httpcore

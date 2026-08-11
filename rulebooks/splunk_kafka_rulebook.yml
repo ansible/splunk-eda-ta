@@ -1,0 +1,21 @@
+---
+- name: Read messages from a kafka topic and act on them
+  hosts: all
+  ## Define our source for events
+  sources:   
+    - ansible.eda.kafka:
+        # Host name or IP address of the Kafka broker
+        host: broker
+        port: 9092
+        topic: eda-topic
+        group_id:
+
+  ## Define the conditions we are looking for
+  rules:
+    - name: Check splunk search raw body
+      condition: event.body._raw is search("Splunk verification")
+      ## Define the action we should take should the condition be met
+      action:
+        run_job_template:
+          name: splunk_kafka_event
+          organization: Default

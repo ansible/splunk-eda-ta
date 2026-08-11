@@ -1,0 +1,8 @@
+---
+- name: print splunk search raw body
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Handle plaintext results
+      debug:
+        msg: "Plaintext results: {{ ansible_eda.event.body._raw }}"
