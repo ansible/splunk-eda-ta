@@ -1,0 +1,28 @@
+<form>
+    <splunk-control-group
+      label="Integration Type"
+      required="true"
+      help="Select whether this alert action should use Webhook or Kafka."
+    >
+        <splunk-select
+          name="action.ansible_itsi.param.alert_type"
+          value="webhook"
+        >
+            <option value="webhook">Webhook</option>
+            <option value="kafka">Kafka</option>
+        </splunk-select>
+    </splunk-control-group>
+    <splunk-control-group
+      label="Environment"
+      required="true"
+      help="Select an environment configured in the add-on Integration tab. If the list is empty, open the add-on and add an integration first."
+    >
+        <splunk-search-dropdown
+          name="action.ansible_itsi.param.environment"
+          search="| rest /servicesNS/nobody/ansible_addon_for_splunk/ansible_addon_for_splunk_environment output_mode=json count=0 | where name!=&quot;default&quot; | eval label=environment.&quot; | type: &quot;.integration_type | table environment, label"
+          value-field="environment"
+          label-field="label"
+        >
+        </splunk-search-dropdown>
+    </splunk-control-group>
+</form>
