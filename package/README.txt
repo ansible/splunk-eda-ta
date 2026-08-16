@@ -3,6 +3,36 @@ Red Hat Event Driven Ansible Add-on For Splunk — Release Notes
 Full release history: https://github.com/ansible/splunk-eda-ta/releases
 
 ================================================================================
+Version 1.2.0
+================================================================================
+
+New Features / Bug Fixes / Maintenance
+
+- Restored appserver/templates/base.html in the distributed package. Removing
+  it (as done in 1.1.0 to satisfy AppInspect) caused a server error on the
+  add-on Configuration page in Splunk Enterprise because UCC's UI relies on
+  base.html to render the React configuration app. The AppInspect
+  check_for_custom_mako_templates future_failure triggered by this file is a
+  known UCC framework bug (https://github.com/splunk/addonfactory-ucc-generator/issues/2086)
+  and is not caused by custom Mako templates in this add-on. The build no
+  longer strips this file; the false-positive AppInspect result is accepted
+  until the UCC framework resolves the upstream issue.
+
+- Fixed ITSI 5.0 Episode Action "Environment" dropdown not rendering. ITSI 5.0
+  injects alert action HTML templates via React dangerouslySetInnerHTML which
+  silently drops <script> tags. Replaced the UCC-generated splunk-search-dropdown
+  web component (broken in ITSI 5.0) with a vanilla-JS-populated <select> that
+  uses an onfocus inline event handler as its primary trigger. Compatible with
+  ITSI 4.21, ITSI 5.0, Splunk Enterprise 9.x, and 10.x.
+
+- Added itsi_webhook_rulebook.yml and itsi_process_event.yml as a reference
+  rulebook and playbook for receiving ITSI Episode Action webhook events.
+  The rulebook uses an event stream to trigger the splunk_itsi_eda AAP job
+  template for payloads containing event_id.
+  The playbook prints the event_id, title/search_name, and full payload, and
+  handles ITSI-specific fields such as itsi_group_id and comments.
+
+================================================================================
 Version 1.1.0
 ================================================================================
 
